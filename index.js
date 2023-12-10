@@ -14775,16 +14775,13 @@ const Features = { // eslint-disable-line no-unused-vars
 		if (!Features.isFetchAvailable()) {
 			missing.push('Fetch - Check web browser version');
 		}
+		if (!Features.isSecureContext()) {
+			missing.push('Secure Context - Check web server configuration (use HTTPS)');
+		}
 
-		/**
-		 * @type {boolean}
-		 */
 		// eslint-disable-next-line no-undef
 		const compiledWithThreads = false;
 		if (compiledWithThreads) {
-			if (!Features.isSecureContext()) {
-				missing.push('Secure Context - Check web server configuration (use HTTPS)');
-			}
 			if (!Features.isCrossOriginIsolated()) {
 				missing.push('Cross Origin Isolation - Check web server configuration (send correct headers)');
 			}

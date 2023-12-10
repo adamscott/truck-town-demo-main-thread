@@ -4,6 +4,13 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no">
 		<title>Truck Town</title>
+		<meta property="og:title" content="Truck Town without cross-origin isolation headers" />
+		<meta property="og:image" content="truck-town.png" />
+		<meta property="og:description" content="Godot Truck Town demo that runs single-threaded on non-COEP/COOP environment." />
+		<meta property="twitter:image" content="truck-town.png" />
+		<meta property="twitter:creator" content="@scottmada" />
+		<meta property="twitter:description" content="Godot Truck Town demo that runs single-threaded on non-COEP/COOP environment." />
+		<meta property="twitter:card" content="summary_large_image" />
 		<style>
 body {
 	touch-action: none;
@@ -137,7 +144,7 @@ body {
 
 		<script src="index.js"></script>
 		<script>
-const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":6015808,"index.wasm":55733214},"focusCanvas":true,"gdextensionLibs":[]};
+const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":6015808,"index.wasm":55738301},"focusCanvas":true,"gdextensionLibs":[]};
 const engine = new Engine(GODOT_CONFIG);
 
 (function () {
