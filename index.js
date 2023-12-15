@@ -664,7 +664,7 @@ function createExportWrapper(name) {
 // include: runtime_exceptions.js
 // end include: runtime_exceptions.js
 var wasmBinaryFile;
-  wasmBinaryFile = 'godot.web.template_debug.dev.wasm32.wasm';
+  wasmBinaryFile = 'godot.web.template_release.dev.wasm32.wasm';
   if (!isDataURI(wasmBinaryFile)) {
     wasmBinaryFile = locateFile(wasmBinaryFile);
   }
@@ -5883,7 +5883,7 @@ function dbg(text) {
       checkStackCookie();
       if (e instanceof WebAssembly.RuntimeError) {
         if (_emscripten_stack_get_current() <= 0) {
-          err('Stack overflow detected.  You can try increasing -sSTACK_SIZE (currently set to 65536)');
+          err('Stack overflow detected.  You can try increasing -sSTACK_SIZE (currently set to 5242880)');
         }
       }
       quit_(1, e);
@@ -9267,6 +9267,38 @@ function dbg(text) {
 
   
   
+  var _glUniformMatrix3fv = (location, count, transpose, value) => {
+  
+      // WebGL 2 provides new garbage-free entry points to call to WebGL. Use
+      // those always when possible.
+      if (GL.currentContext.version >= 2) {
+        count && GLctx.uniformMatrix3fv(webglGetUniformLocation(location), !!transpose, HEAPF32, value>>2, count*9);
+        return;
+      }
+  
+      if (count <= 32) {
+        // avoid allocation when uploading few enough uniforms
+        var view = miniTempWebGLFloatBuffers[9*count-1];
+        for (var i = 0; i < 9*count; i += 9) {
+          view[i] = HEAPF32[(((value)+(4*i))>>2)];
+          view[i+1] = HEAPF32[(((value)+(4*i+4))>>2)];
+          view[i+2] = HEAPF32[(((value)+(4*i+8))>>2)];
+          view[i+3] = HEAPF32[(((value)+(4*i+12))>>2)];
+          view[i+4] = HEAPF32[(((value)+(4*i+16))>>2)];
+          view[i+5] = HEAPF32[(((value)+(4*i+20))>>2)];
+          view[i+6] = HEAPF32[(((value)+(4*i+24))>>2)];
+          view[i+7] = HEAPF32[(((value)+(4*i+28))>>2)];
+          view[i+8] = HEAPF32[(((value)+(4*i+32))>>2)];
+        }
+      } else
+      {
+        var view = HEAPF32.subarray((value)>>2, (value+count*36)>>2);
+      }
+      GLctx.uniformMatrix3fv(webglGetUniformLocation(location), !!transpose, view);
+    };
+
+  
+  
   var _glUniformMatrix4fv = (location, count, transpose, value) => {
   
       // WebGL 2 provides new garbage-free entry points to call to WebGL. Use
@@ -12212,6 +12244,21 @@ function dbg(text) {
   
   var GodotWebGL2 = {
   };
+  function _godot_webgl2_glFramebufferTextureMultisampleMultiviewOVR(target, attachment, texture, level, samples, base_view_index, num_views) {
+  		const context = GL.currentContext;
+  		if (typeof context.oculusMultiviewExt === 'undefined') {
+  			const /** OCULUS_multiview */ ext = context.GLctx.getExtension('OCULUS_multiview');
+  			if (!ext) {
+  				GodotRuntime.error('Trying to call glFramebufferTextureMultisampleMultiviewOVR() without the OCULUS_multiview extension');
+  				return;
+  			}
+  			context.oculusMultiviewExt = ext;
+  		}
+  		const /** OCULUS_multiview */ ext = context.oculusMultiviewExt;
+  		ext.framebufferTextureMultisampleMultiviewOVR(target, attachment, GL.textures[texture], level, samples, base_view_index, num_views);
+  	}
+
+  
   function _godot_webgl2_glFramebufferTextureMultiviewOVR(target, attachment, texture, level, base_view_index, num_views) {
   		const context = GL.currentContext;
   		if (typeof context.multiviewExt === 'undefined') {
@@ -13620,6 +13667,8 @@ var wasmImports = {
   /** @export */
   glUniformBlockBinding: _glUniformBlockBinding,
   /** @export */
+  glUniformMatrix3fv: _glUniformMatrix3fv,
+  /** @export */
   glUniformMatrix4fv: _glUniformMatrix4fv,
   /** @export */
   glUseProgram: _glUseProgram,
@@ -13870,6 +13919,8 @@ var wasmImports = {
   /** @export */
   godot_js_wrapper_object_unref: _godot_js_wrapper_object_unref,
   /** @export */
+  godot_webgl2_glFramebufferTextureMultisampleMultiviewOVR: _godot_webgl2_glFramebufferTextureMultisampleMultiviewOVR,
+  /** @export */
   godot_webgl2_glFramebufferTextureMultiviewOVR: _godot_webgl2_glFramebufferTextureMultiviewOVR,
   /** @export */
   godot_webgl2_glGetBufferSubData: _godot_webgl2_glGetBufferSubData,
@@ -13967,7 +14018,7 @@ var dynCall_viji = Module['dynCall_viji'] = createExportWrapper('dynCall_viji');
 var dynCall_jii = Module['dynCall_jii'] = createExportWrapper('dynCall_jii');
 var dynCall_vij = Module['dynCall_vij'] = createExportWrapper('dynCall_vij');
 var dynCall_jiiiiiii = Module['dynCall_jiiiiiii'] = createExportWrapper('dynCall_jiiiiiii');
-var dynCall_vijiiiiiiiii = Module['dynCall_vijiiiiiiiii'] = createExportWrapper('dynCall_vijiiiiiiiii');
+var dynCall_vijiiiiiiiiii = Module['dynCall_vijiiiiiiiiii'] = createExportWrapper('dynCall_vijiiiiiiiiii');
 var dynCall_vijj = Module['dynCall_vijj'] = createExportWrapper('dynCall_vijj');
 var dynCall_vijiiiffi = Module['dynCall_vijiiiffi'] = createExportWrapper('dynCall_vijiiiffi');
 var dynCall_vijiiifii = Module['dynCall_vijiiifii'] = createExportWrapper('dynCall_vijiiifii');
@@ -14115,8 +14166,6 @@ var dynCall_jiiiiiiiiii = Module['dynCall_jiiiiiiiiii'] = createExportWrapper('d
 var dynCall_jiiiiii = Module['dynCall_jiiiiii'] = createExportWrapper('dynCall_jiiiiii');
 var dynCall_jiiiiiiii = Module['dynCall_jiiiiiiii'] = createExportWrapper('dynCall_jiiiiiiii');
 var dynCall_iijji = Module['dynCall_iijji'] = createExportWrapper('dynCall_iijji');
-var dynCall_jjj = Module['dynCall_jjj'] = createExportWrapper('dynCall_jjj');
-var dynCall_jjjj = Module['dynCall_jjjj'] = createExportWrapper('dynCall_jjjj');
 var dynCall_viiiiji = Module['dynCall_viiiiji'] = createExportWrapper('dynCall_viiiiji');
 var dynCall_ij = Module['dynCall_ij'] = createExportWrapper('dynCall_ij');
 var dynCall_iijjiii = Module['dynCall_iijjiii'] = createExportWrapper('dynCall_iijjiii');
